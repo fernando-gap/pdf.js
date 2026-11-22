@@ -164,7 +164,7 @@ class OutputScale {
   }
 
   static get pixelRatio() {
-    return globalThis.devicePixelRatio || 1;
+    return (globalThis.devicePixelRatio || 1) * 2;
   }
 
   static capPixels(maxPixels, capAreaFactor) {

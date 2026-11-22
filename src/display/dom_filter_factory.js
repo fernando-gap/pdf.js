@@ -205,7 +205,7 @@ class DOMFilterFactory extends BaseFilterFactory {
 
     const id = `g_${this.#docId}_hcm_filter`;
     const filter = (info.filter = this.#createFilter(id));
-    this.#addTransferMapConversion(table, table, table, filter);
+    //this.#addTransferMapConversion(table, table, table, filter);
     this.#addGrayConversion(filter);
 
     const getSteps = (c, n) => {
@@ -218,9 +218,9 @@ class DOMFilterFactory extends BaseFilterFactory {
       return arr.join(",");
     };
     this.#addTransferMapConversion(
-      getSteps(0, 5),
-      getSteps(1, 5),
-      getSteps(2, 5),
+      getSteps(0, 255),
+      getSteps(1, 255),
+      getSteps(2, 255),
       filter
     );
 

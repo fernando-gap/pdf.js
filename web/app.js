@@ -207,6 +207,54 @@ const PDFViewerApplication = {
   // Only used to keep the preloaded icons alive, see `load`.
   _preloadedIcons: null,
 
+  muonMetadata: null,
+
+  async _updateMetadata(pdfDocument) {
+    const { info } = await pdfDocument.getMetadata();
+
+    if (this.muonMetadata.preview) return; // metadata already populated.
+
+    this.muonMetadata.title = info.Title || this.muonMetadata.title
+    this.muonMetadata.pages ||= pdfDocument.numPages;
+
+    if (this.muonMetadata.title.split(" ") <= 4) {
+      if (info.Author && info.Author.length > 0) {
+        this.muonMetadata.title += "—" + info.Author
+      }
+    }
+
+    this.muonMetadata.preview = await this.getPreview(pdfDocument)
+
+    console.log(this.muonMetadata)
+
+    window.electron.updateMetadata(this.muonMetadata)
+  },
+
+  async getPreview(pdfDocument) {
+    const page = await pdfDocument.getPage(1);
+
+    const original = page.getViewport({ scale: 1 });
+    const viewport = page.getViewport({
+      scale: 300 / original.width, // Preview width: 300px
+    });
+
+    const target = pdfDocument.canvasFactory.create(
+      Math.ceil(viewport.width),
+      Math.ceil(viewport.height),
+    );
+
+    await page.render({
+      canvasContext: target.context,
+      viewport,
+    }).promise;
+
+    const preview = target.canvas.toDataURL("image/png");
+
+    pdfDocument.canvasFactory.destroy(target);
+
+    return preview
+  },
+
   // Called once when the document is loaded.
   async initialize(appConfig) {
     this.appConfig = appConfig;
@@ -972,7 +1020,7 @@ const PDFViewerApplication = {
       // than a fragment separator, since the viewer takes its own hash
       // parameters from the *viewer* URL (issue 19990).
       file = URL.parse(file)?.href ?? file.replaceAll("#", "%23");
-      validateFileURL(file);
+      //validateFileURL(file);
     } else if (PDFJSDev.test("MOZCENTRAL")) {
       file = window.location.href;
     } else if (PDFJSDev.test("CHROME")) {
@@ -1721,6 +1769,8 @@ const PDFViewerApplication = {
 
   load(pdfDocument) {
     this.pdfDocument = pdfDocument;
+
+    this._updateMetadata(pdfDocument)
 
     this._printPermissionPromise = new Promise(resolve => {
       this.eventBus.on(
