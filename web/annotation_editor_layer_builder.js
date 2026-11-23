@@ -25,7 +25,7 @@
 // eslint-disable-next-line max-len
 /** @typedef {import("../src/display/struct_tree_layer_builder.js").StructTreeLayerBuilder} StructTreeLayerBuilder */
 
-import { AnnotationEditorLayer } from "pdfjs-lib";
+import { AnnotationEditorLayer, HighlightEditor } from "pdfjs-lib";
 import { GenericL10n } from "web-null_l10n";
 
 /**
@@ -79,6 +79,8 @@ class AnnotationEditorLayerBuilder {
     this.#drawLayer = options.drawLayer || null;
     this.#onAppend = options.onAppend || null;
     this.#structTreeLayer = options.structTreeLayer || null;
+
+    this.fetchAnnotations = new FetchAnnotations()
   }
 
   updatePageIndex(newPageIndex) {
@@ -129,6 +131,10 @@ class AnnotationEditorLayerBuilder {
       intent,
     };
 
+
+    this.fetchAnnotations.fetch(this.pageIndex, this.annotationEditorLayer, this.#uiManager);
+
+
     await this.annotationEditorLayer.render(parameters);
     this.show();
   }
@@ -165,6 +171,28 @@ class AnnotationEditorLayerBuilder {
     }
     this.div.hidden = false;
     this.annotationEditorLayer.pause(/* on */ false);
+  }
+}
+
+
+class FetchAnnotations {
+
+  constructor() {
+    this.pages = []
+  }
+
+  fetch(pageIndex, layer, uiManager) {
+    if (this.pages[pageIndex] !== undefined) return;
+    this.pages[pageIndex] = true;
+
+    window.electron.getPageAnnotations(pageIndex, async (annotations) => {
+      for (const annotation of annotations) {
+        const editor = await HighlightEditor.deserialize(JSON.parse(annotation.annotation), layer, uiManager)
+        editor.muonId = annotation.id
+        layer.add(editor)
+      }
+    })
+
   }
 }
 

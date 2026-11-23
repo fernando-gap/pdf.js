@@ -81,6 +81,7 @@ import {
   SupportedImageMimeTypes,
 } from "./display/dom_utils.js";
 import { AnnotationEditorLayer } from "./display/editor/annotation_editor_layer.js";
+import { HighlightEditor } from "./display/editor/highlight.js";
 import { AnnotationEditorUIManager } from "./display/editor/tools.js";
 import { AnnotationLayer } from "./display/annotation_layer.js";
 import { ColorPicker } from "./display/editor/color_picker.js";
@@ -234,4 +235,7 @@ export {
   VerbosityLevel,
   version,
   XfaLayer,
+
+  // used by muon to load highlights
+  HighlightEditor,
 };

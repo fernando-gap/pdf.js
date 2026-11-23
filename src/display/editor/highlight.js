@@ -110,6 +110,10 @@ class HighlightEditor extends DrawingEditor {
     this._isDraggable = false;
     this.defaultL10nId = "pdfjs-editor-highlight-editor";
     this.rotate();
+
+
+    // annotation id from muon
+    this.muonId = null;
   }
 
   /** @inheritdoc */
@@ -471,17 +475,32 @@ class HighlightEditor extends DrawingEditor {
     data,
     uiManager
   ) {
+
+    console.log('data',data)
     const { quadPoints } = data;
+    console.log('quadPoints',quadPoints)
     if (quadPoints) {
       const boxes = [];
       for (let i = 0, ii = quadPoints.length; i < ii; i += 8) {
-        boxes.push({
+        console.log(
+          {
           x: (quadPoints[i] - pageX) / pageWidth,
           y: 1 - (quadPoints[i + 1] - pageY) / pageHeight,
           width: (quadPoints[i + 2] - quadPoints[i]) / pageWidth,
           height: (quadPoints[i + 1] - quadPoints[i + 5]) / pageHeight,
-        });
+        })
+
+        boxes.push(
+          {
+          x: (quadPoints[i] - pageX) / pageWidth,
+          y: 1 - (quadPoints[i + 1] - pageY) / pageHeight,
+          width: (quadPoints[i + 2] - quadPoints[i]) / pageWidth,
+          height: (quadPoints[i + 1] - quadPoints[i + 5]) / pageHeight,
+        }
+        );
       }
+
+      console.log(boxes)
       return HighlightOutline.build(boxes, uiManager.direction === "ltr");
     }
 

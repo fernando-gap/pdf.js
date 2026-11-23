@@ -1242,6 +1242,9 @@ class AnnotationEditorUIManager {
 
   updateComment(editor) {
     this.#commentManager?.updateComment(editor.getData());
+    if (editor.muonId) {
+      window.electron.updateAnnotation(editor.muonId, editor.serialize())
+    }
   }
 
   updatePopupColor(editor) {
@@ -1445,6 +1448,18 @@ class AnnotationEditorUIManager {
         focusOffset,
         text,
       });
+
+
+      const annotation = editor.serialize();
+
+      annotation.quadPoints = Array.from(annotation.quadPoints);
+      annotation.text = text;
+
+      window.electron.saveAnnotation(annotation, (muonId) => {
+          editor.muonId = muonId
+      })
+
+
       if (isNoneMode) {
         this.showAllEditors("highlight", true, /* updateButton = */ true);
       }
@@ -2398,6 +2413,7 @@ class AnnotationEditorUIManager {
    * @param {AnnotationEditor} editor
    */
   addEditor(editor) {
+    console.log(editor)
     this.#allEditors.set(editor.id, editor);
   }
 
@@ -3069,6 +3085,7 @@ class AnnotationEditorUIManager {
     (this.#missingCanvases ||= new Map()).set(annotationId, editor);
   }
 }
+
 
 export {
   AnnotationEditorUIManager,
