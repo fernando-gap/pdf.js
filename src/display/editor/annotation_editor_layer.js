@@ -571,12 +571,9 @@ class AnnotationEditorLayer {
    * @param {AnnotationEditor} editor
    */
   add(editor) {
-    console.log(editor)
     if (editor.parent === this && editor.isAttachedToDOM) {
       return;
     }
-    console.log('yes', editor)
-
     this.changeParent(editor);
     this.#uiManager.addEditor(editor);
     this.attach(editor);

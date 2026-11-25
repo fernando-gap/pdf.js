@@ -1243,7 +1243,10 @@ class AnnotationEditorUIManager {
   updateComment(editor) {
     this.#commentManager?.updateComment(editor.getData());
     if (editor.muonId) {
-      window.electron.updateAnnotation(editor.muonId, editor.serialize())
+      const annotation = editor.serialize()
+      annotation.quadPoints = Array.from(annotation.quadPoints);
+      annotation.text = editor.text;
+      window.electron.updateAnnotation(editor.muonId, annotation)
     }
   }
 
@@ -1457,6 +1460,7 @@ class AnnotationEditorUIManager {
 
       window.electron.saveAnnotation(annotation, (muonId) => {
           editor.muonId = muonId
+          editor.text = text
       })
 
 
